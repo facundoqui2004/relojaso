@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizador de Estudio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-image: url('527166.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .main-timer {
+            font-size: 10em;
+            font-weight: bold;
+            margin: 40px;
+            padding: 100px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            text-align: center;
+            display: block;
+        }
+
+        .controls-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .button-container {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        input {
+            padding: 5px;
+            width: 60px;
+            text-align: center;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: auto;
+        }
+        fifii {
+            background-color: #d11414;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .button-container2 {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-timer" id="mainTimer">00:00:00</div>
+    
+    <div class="controls-container" id="controlsContainer">
+        <div class="controls">
+            <label>Concentración:</label>
+            <input type="number" id="focusTime" min="1" value="25">
+            <label>Estudio:</label>
+            <input type="number" id="studyTime" min="1" value="5">
+            <div class="button-container">
+                <button id="startPauseButton" onclick="startPauseTimer()">Iniciar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-container2 hidden" id="pauseAndFinishButtons">
+        <button id="pauseButton" onclick="pauseTimer()">Pausar</button>
+        <button class= "fifii" id="finishButton" onclick="finishTimer()">Terminar</button>
+    </div>
+
+    <script>
+        let countdown, isRunning = false, isFocusTime = true, timeRemaining, pausedTime;
+        const mainTimer = document.getElementById('mainTimer');
+        const startPauseButton = document.getElementById('startPauseButton');
+        const focusInput = document.getElementById('focusTime');
+        const studyInput = document.getElementById('studyTime');
+        const controlsContainer = document.getElementById('controlsContainer');
+        const pauseAndFinishButtons = document.getElementById('pauseAndFinishButtons');
+        const pauseButton = document.getElementById('pauseButton');
+        const finishButton = document.getElementById('finishButton');
+    
+        // Hide pause and finish buttons initially
+        pauseAndFinishButtons.classList.add('hidden');
+    
+        // Alarm sound function
+        function playAlarm() {
+            const audio = new Audio('file:///C:/Users/Facuq/Documents/Mis programas/Nueva carpeta/ALTOOOO! YO YA ESTUVE EN ESTOS JUEGOS.mp3');
+            audio.play().catch(error => console.log('Error al reproducir alarma:', error));
+        }
+
+    
+        function startPauseTimer() {
+            const focusTime = focusInput.value * 60;
+            const studyTime = studyInput.value * 60;
+    
+            if (!isRunning) {
+                // Start the timer
+                timeRemaining = isFocusTime ? focusTime : studyTime;
+                countdown = setInterval(updateTimer, 1000);
+                startPauseButton.textContent = 'Pausar';
+                controlsContainer.classList.add('hidden'); // Hide initial controls
+                pauseAndFinishButtons.classList.remove('hidden'); // Show pause and finish buttons
+                isRunning = true;
+            } else {
+                // Pause the timer
+                clearInterval(countdown);
+                pausedTime = timeRemaining;
+                startPauseButton.textContent = 'Reanudar';
+                isRunning = false;
+            }
+        }
+    
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(countdown);
+                pausedTime = timeRemaining;
+                isRunning = false;
+                pauseButton.textContent = 'Reanudar';
+            } else {
+                timeRemaining = pausedTime;
+                countdown = setInterval(updateTimer, 1000);
+                isRunning = true;
+                pauseButton.textContent = 'Pausar';
+            }
+        }
+    
+        function finishTimer() {
+            clearInterval(countdown);
+            mainTimer.textContent = "00:00:00";
+            startPauseButton.textContent = 'Iniciar';
+            controlsContainer.classList.remove('hidden'); // Show initial controls
+            pauseAndFinishButtons.classList.add('hidden'); // Hide pause and finish buttons
+            isRunning = false;
+            isFocusTime = true;
+        }
+    
+        function updateTimer() {
+            let hours = Math.floor(timeRemaining / 3600);
+            let minutes = Math.floor((timeRemaining % 3600) / 60);
+            let seconds = timeRemaining % 60;
+            mainTimer.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(seconds)}`;
+            timeRemaining--;
+    
+            if (timeRemaining < 0) {
+                clearInterval(countdown);
+                isFocusTime = !isFocusTime; // Switch between focus and study time
+                const nextTime = isFocusTime ? focusInput.value * 60 : studyInput.value * 60;
+                timeRemaining = nextTime;
+    
+                // Play alarm sound when switching modes
+                playAlarm();
+    
+                // Restart the timer for the next cycle
+                countdown = setInterval(updateTimer, 1000);
+            }
+        }
+    
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+    </script>
+</body>
+</html>
