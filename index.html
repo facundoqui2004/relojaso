@@ -125,7 +125,8 @@
     
         // Alarm sound function
         function playAlarm() {
-            const audio = new Audio('file:///C:/Users/Facuq/Documents/Mis programas/Nueva carpeta/ALTOOOO! YO YA ESTUVE EN ESTOS JUEGOS.mp3');
+            const audio = new Audio('audio/ALTOOOO! YO YA ESTUVE EN ESTOS JUEGOS.mp3');
+            
             audio.play().catch(error => console.log('Error al reproducir alarma:', error));
         }
 
